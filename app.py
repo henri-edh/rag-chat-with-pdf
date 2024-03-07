@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import PyPDF2
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -9,15 +11,16 @@ from langchain.memory import ChatMessageHistory, ConversationBufferMemory
 import chainlit as cl
 
 # for chainlit, .env is loaded automatically
-#from dotenv import load_dotenv
-#load_dotenv()  #
-#groq_api_key = os.environ['GROQ_API_KEY']
+from dotenv import load_dotenv
+load_dotenv()  #
+groq_api_key = os.environ['GROQ_API_KEY']
+
 
 llm_local = ChatOllama(model="mistral-instruct")
 llm_groq = ChatGroq(
-            #groq_api_key=groq_api_key,
-            #model_name='llama2-70b-4096' 
-            model_name='mixtral-8x7b-32768'
+            groq_api_key=groq_api_key,
+            model_name='llama2-70b-4096' 
+            #model_name='mixtral-8x7b-32768'
     )
 
 @cl.on_chat_start
@@ -74,7 +77,8 @@ async def on_chat_start():
 
     # Create a chain that uses the Chroma vector store
     chain = ConversationalRetrievalChain.from_llm(
-        llm = llm_local,
+        #llm = llm_local,
+        llm = llm_groq,
         chain_type="stuff",
         retriever=docsearch.as_retriever(),
         memory=memory,
